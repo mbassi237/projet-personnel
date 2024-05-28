@@ -14,32 +14,15 @@ with st.container():
     st.write("Developpe par: MBASSI ATANGANA")
 st.image('Doabra/Doabra.png', width=200)
 st.write('''
-Bienvenue sur votre Application de prediction de l'etat de sante d'un individu
+# Bienvenue sur votre Application de prediction de l'etat de sante d'un individu
+Entrez vos parametres physiologiques:
 ''')
 
-st.sidebar.header("Entrez vos parametres physiologiques:")
-
-def user_input():
-    temperature = st.sidebar.slider('Temperature corporelle', 15.30 , 50.65, 36.00)
-    pouls = st.sidebar.slider('rythme cardiaque', 60.00, 200.00, 180.00)
-    oxygene = st.sidebar.slider('Taux oxygene dans le sang', 40.25, 250.00, 95.00)
-    glycemie = st.sidebar.slider('Taux de glycemie', 10.00, 200.00, 110.00)
-    tension = st.sidebar.slider('Tension arterielle', 50, 200, 84)
-    data = {
-        'temperature': temperature,
-        'pouls': pouls,
-        'oxygene': oxygene,
-        'glycemie': glycemie,
-        'tension': tension
-    }
-    parametres = pd.DataFrame(data, index=[0])
-    return parametres
-
-
-
-df = user_input()
-st.subheader("Trouver l'etat de sante de cet l'individu:")
-st.write(df)
+temperature = st.number_input("Entrez votre température (°C) :", min_value=35.0, max_value=42.0, step=0.1)
+pouls = st.number_input("Entrez votre fréquence cardiaque (bpm) :", min_value=40, max_value=150, step=1)
+oxygene = st.number_input("Entrez votre taux d'oxygène (%) :", min_value=90, max_value=100, step=1)
+glycemie = st.number_input("Entrez votre glycémie (mg/dL) :", min_value=70, max_value=300, step=1)
+tension = st.number_input("Entrez votre tension artérielle (mmHg) :", min_value=80, max_value=150, step=1)
 
 ### MODELE DE PREDICTION
 data = pd.read_csv("maladie_observations.csv")
@@ -73,14 +56,17 @@ modele = LogisticRegression(penalty=None)
 modele.fit(X_train , Y_train)
 
 #Tester le modele
-predictions = modele.predict(df)
+#predictions = modele.predict(df)
 #print(predictions)
 #print(Y_test)
+if st.button("Prédire"):
+    # Préparer les données d'entrée
+    input_data = np.array([[float(temperature), float(pouls), float(pouls), float(glycemie), int(tension)]])
+    predictions = modele.predict(input_data)
+    # Afficher les résultats
+    if predictions[0] == 0:
+        st.write("Vous êtes en état de santé normal.")
+    else:
+        st.write("Vous êtes probablement malade. Consultez un médecin dès que possible pour plus de précisions")
 
-st.subheader("votre etat de sante :")
-if predictions == 1:
-    st.write("Vous etes malade")
-    st.write("Nous vous recommandons de vous rendre au plutôt dans une structure sanitaire et effectuer des examens pour en savoir plus.")
-else:
-    st.write("Vous etes en etat de sante normal.")
-    st.write("Veuillez quand même boire beaucoup d'eau, manger sain et faire de l'exercice physique régulier")
+
