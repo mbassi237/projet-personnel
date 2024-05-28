@@ -19,9 +19,9 @@ Entrez vos parametres physiologiques:
 ''')
 
 temperature = st.number_input("Entrez votre température (°C) :", min_value=35.0, max_value=42.0, step=0.1)
-pouls = st.number_input("Entrez votre fréquence cardiaque (bpm) :", min_value=40.0, max_value=150.0, step=1)
-oxygene = st.number_input("Entrez votre taux d'oxygène (%) :", min_value=90.0, max_value=100.0, step=1)
-glycemie = st.number_input("Entrez votre glycémie (mg/dL) :", min_value=70.0, max_value=300.0, step=1)
+pouls = st.number_input("Entrez votre fréquence cardiaque (bpm) :", min_value=40.0, max_value=150.0, step=0.1)
+oxygene = st.number_input("Entrez votre taux d'oxygène (%) :", min_value=90.0, max_value=100.0, step=0.1)
+glycemie = st.number_input("Entrez votre glycémie (mg/dL) :", min_value=70.0, max_value=300.0, step=0.1)
 tension = st.number_input("Entrez votre tension artérielle (mmHg) :", min_value=80, max_value=150, step=1)
 
 ### MODELE DE PREDICTION
