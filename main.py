@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 
 ### CREATION DE L'INTERFACE GRAPHIQUE
@@ -11,18 +12,18 @@ st.set_page_config(
     page_icon='Doabra/Doabra.png'
 )
 with st.container():
-    st.write("Developpe par: MBASSI ATANGANA")
+    st.write("Developped by: MBASSI ATANGANA")
 st.image('Doabra/Doabra.png', width=200)
 st.write('''
-# Bienvenue sur votre Application de prediction de l'etat de sante d'un individu
-Entrez vos parametres physiologiques:
+# Welcome to your Application for predicting the state of health of an individual
+Enter your physiological parameters:
 ''')
 
-temperature = st.number_input("Entrez votre température (°C) :", min_value=35.0, max_value=42.0, step=0.1)
-pouls = st.number_input("Entrez votre fréquence cardiaque (bpm) :", min_value=40.0, max_value=150.0, step=0.1)
-oxygene = st.number_input("Entrez votre taux d'oxygène (%) :", min_value=90.0, max_value=100.0, step=0.1)
-glycemie = st.number_input("Entrez votre glycémie (mg/dL) :", min_value=70.0, max_value=300.0, step=0.1)
-tension = st.number_input("Entrez votre tension artérielle (mmHg) :", min_value=80, max_value=150, step=1)
+temperature = st.number_input("Enter your temperature (°C) :", min_value=35.0, max_value=42.0, step=0.1)
+pouls = st.number_input("Enter your heart rate (bpm) :", min_value=40.0, max_value=150.0, step=0.1)
+oxygene = st.number_input("Enter your oxygen level (%) :", min_value=90.0, max_value=100.0, step=0.1)
+glycemie = st.number_input("Enter your blood sugar (mg/dL) :", min_value=70.0, max_value=300.0, step=0.1)
+tension = st.number_input("Enter your blood pressure (mmHg) :", min_value=80, max_value=150, step=1)
 
 ### MODELE DE PREDICTION
 data = pd.read_csv("maladie_observations.csv")
@@ -54,19 +55,21 @@ print(X_train.shape)
 #creation du modele
 modele = LogisticRegression(penalty=None)
 modele.fit(X_train , Y_train)
-
 #Tester le modele
 #predictions = modele.predict(df)
 #print(predictions)
 #print(Y_test)
-if st.button("Prédire"):
+if st.button("Predict", type="primary"):
     # Préparer les données d'entrée
-    input_data = np.array([[float(temperature), float(pouls), float(pouls), float(glycemie), int(tension)]])
+    input_data = np.array([[float(temperature), float(pouls), float(oxygene), float(glycemie), int(tension)]])
     predictions = modele.predict(input_data)
     # Afficher les résultats
     if predictions[0] == 0:
-        st.write("Vous êtes en état de santé normal.")
+        st.write("You are in normal health.")
+        st.write("Percentage probability that you are:", modele.predict_proba(input_data)[0][1] * 100)
     else:
-        st.write("Vous êtes probablement malade. Consultez un médecin dès que possible pour plus de précisions")
+        st.write("You are probably sick. Consult a doctor as soon as possible for further clarification")
+
+        st.write("Percentage probability that you are:", modele.predict_proba(input_data)[0][1] * 100)
 
 
