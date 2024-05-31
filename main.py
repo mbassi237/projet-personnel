@@ -48,17 +48,15 @@ X = new.drop('label', axis=1)
 Y = new['label']
 
 #separation des donnees pour les tests et l'entrainement
-X_train , X_test , Y_train , Y_test = train_test_split(X,Y , test_size=0.2 , random_state=0)
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
 print(X_test.shape)
 print(X_train.shape)
 
 #creation du modele
 modele = LogisticRegression(penalty=None)
 modele.fit(X_train , Y_train)
-#Tester le modele
-#predictions = modele.predict(df)
-#print(predictions)
-#print(Y_test)
+# Creation du bouton
+
 if st.button("Predict", type="primary"):
     # Préparer les données d'entrée
     input_data = np.array([[float(temperature), float(pouls), float(oxygene), float(glycemie), int(tension)]])
