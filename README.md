@@ -2,7 +2,6 @@
 
 # **📚 Plateforme de Gestion de Ressources, Événements et Système de Mentorat**
 
-![Banner](https://via.placeholder.com/800x200.png?text=Plateforme+de+Gestion+Ressources+et+Mentorat)  
 
 > **Plateforme complète pour la gestion des ressources de formation, des événements et des systèmes de mentorat.**  
 > Elle permet de rechercher, filtrer, s'inscrire à des événements, et de participer à des sessions de mentorat.
@@ -11,21 +10,21 @@
 
 ## **🚀 Fonctionnalités Principales**
 1. **Gestion des Ressources de Formation**  
-   - Accès aux ressources (vidéos, documents, quiz)  
-   - Recherche et filtrage des ressources  
-   - Visionnage de contenu et prise de notes  
-   - Système de quiz et attribution de certificats  
+   - Creation d'une ressource
+   - Recherche et filtrage des ressources   
 
 2. **Gestion du Calendrier des Événements**  
-   - Liste et filtrage des événements  
-   - Inscription aux événements  
-   - Ajout d'événements au calendrier Google ou Outlook  
+   - Liste et filtrage des événements pour la recherche
+   - Inscription aux événements
+   - Afficher les details d'un evenement 
+   - Ajout d'événements au calendrier Google ou Outlook  personnel de l'utilisateur
 
 3. **Système de Mentorat**  
-   - Rechercher des mentors par compétences  
+   - Rechercher des mentors selon les informations de l'utilisateur
    - Recommandation de mentors adaptés  
-   - Connexion à un mentor et système de chat sécurisé  
-   - Suivi des sessions de mentorat et des objectifs  
+   - Afficher les informations de mentorat
+   - Suivi des progres de l'utilisateur dans le cadre du mentorat
+   - Demander un mentora
 
 ---
 
@@ -137,7 +136,7 @@ my_project/
 
 ## **🛠️ Utilisation de l'API**
 
-### **1. Gestion des Ressources**
+### **1. Gestion des Ressources de Formation**
 | **Action**                | **Méthode**  | **Endpoint**              |
 |--------------------------|-------------|---------------------------|
 | Liste des ressources      | `GET`       | `/api/formation/`          |
@@ -148,20 +147,18 @@ my_project/
 ### **2. Gestion des Événements**
 | **Action**                 | **Méthode**  | **Endpoint**               |
 |---------------------------|-------------|----------------------------|
-| Liste des événements       | `GET`       | `/api/evenements/`             |
+| Recherche evenements       | `GET`       | `/api/evenements/`             |
 | Détails d'un événement     | `GET`       | `/api/evenements/<id>/`        |
-| Inscription à un événement | `POST`      | `/api/evenements/<id>/register/` |
-| Ajouter au calendrier      | `POST`      | `/api/eventements/<id>/calendar/` |
+| Ajouter au calendrier      | `POST`      | `/api/eventements/<event_id>/calendar/` |
 
 ---
 
 ### **3. Système de Mentorat**
 | **Action**                     | **Méthode**  | **Endpoint**                     |
 |---------------------------------|-------------|-----------------------------------|
-| Introduction au mentorat        | `GET`       | `/api/mentorship/`                 |
-| Recherche de mentors            | `GET`       | `/api/mentorship/search/`          |
-| Recommandation de mentors       | `GET`       | `/api/mentorship/recommend/`       |
-| Demander un mentor              | `POST`      | `/api/mentorship/request/<mentor_id>/` |
+| Introduction au mentorat        | `GET`       | `/api/mentorship/mentoring-introduction`                 |
+| Recherche de mentors            | `GET`       | `/api/mentorship/mentor-search/`          |
+| Recommandation de mentors       | `GET`       | `/api/mentorship/mentor-recommendation/`       |
 | Suivi des progrès du mentorat   | `GET`       | `/api/mentorship/progress/`        |
 
 ---
@@ -181,19 +178,6 @@ python manage.py test
 - Ajouter le support de **WebSockets** pour le chat en direct.  
 - Ajouter des **notifications push** pour les rappels d'événements.  
 - Améliorer l'interface utilisateur avec **Django Templates** ou **React.js**.  
-
----
-
-## **🤝 Contribuer**
-1. **Fork le projet**  
-2. **Crée une branche feature**  
-3. **Fais un commit**  
-4. **Ouvre une Pull Request**  
-
----
-
-## **📄 Licence**
-Ce projet est sous licence **MIT**. Consultez le fichier `LICENSE` pour plus d'informations.
 
 ---
 
