@@ -27,6 +27,9 @@ class Ressources(models.Model):
     Created_At = models.DateTimeField(auto_now_add=True)
     Update_At = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.Title} ({self.Type})"
+
 
 class Formation(models.Model):
     STATUS_CHOICES = [
@@ -44,6 +47,9 @@ class Formation(models.Model):
     Created_At = models.DateTimeField(auto_now_add=True)
     Update_At = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.Title} ({self.Type})"
+
 
 class Formation_Content(models.Model):
     CONTENT_TYPES = [
@@ -60,3 +66,6 @@ class Formation_Content(models.Model):
     Order = models.PositiveIntegerField()
     Created_At = models.DateTimeField(auto_now_add=True)
     Updated_At = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.Content_Type} ({self.Formation_Id})"

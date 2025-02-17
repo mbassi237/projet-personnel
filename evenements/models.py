@@ -22,3 +22,6 @@ class Events(models.Model):
     Attendees =models.TextField()
     Created_At = models.DateTimeField(auto_now_add=True)
     Updated_At = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.Title} ({self.Organized_By})"

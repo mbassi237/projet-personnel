@@ -109,27 +109,43 @@ class RequestMentorView(APIView):
         return Response(serializer.errors, status=400)
 
 
-
 class MentoringProgressView(APIView):
     """
-    Suivi des progres de l'utilisateur dans le cadre du mentorat.
+    Suivi des progrès de l'utilisateur dans le cadre du mentorat.
     """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         """
-        Affiche la progression de l'utilisateur dans le mentorat.
-        :param request:
-        :return:
+        Récupère la progression du mentorat pour l'utilisateur connecté.
         """
-        mentorings = Mentoring.objects,filter(Mentee_Id=request.user)
-        data = []
+        try:
+            # Vérifier que l'utilisateur connecté est un mentee
+            user = CustomUser.objects.get(id=request.user.id)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "Utilisateur non valide"}, status=400)
 
+        # Filtrer les mentorats où l'utilisateur est mentee
+        mentorings = Mentoring.objects.filter(Mentee_Id=user, Status="active").order_by('-Start_Date')
+
+        if not mentorings.exists():
+            return Response({"message": "Aucune relation de mentorat active trouvée"}, status=404)
+
+        data = []
         for mentoring in mentorings:
+            mentor = mentoring.Mentor_Id  # Récupération du mentor
+
             data.append({
-                'Mentor': mentoring.Mentor_Id.username,
+                'Mentor': {
+                    'username': mentor.username,
+                    'phone_number': mentor.phone_number,
+                    'is_verified': mentor.is_verified
+                },
                 'Start_Date': mentoring.Start_Date,
                 'End_Date': mentoring.End_Date,
-                'Status': mentoring.Status
+                'Status': mentoring.Status,
+                'Created_At': mentoring.Created_At,
+                'Updated_At': mentoring.Updated_At
             })
-        return Response(data)
+
+        return Response(data, status=200)
