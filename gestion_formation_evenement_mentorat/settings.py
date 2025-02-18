@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-bi)45+m=s9i-w$#_ma8%o535^4^4h&qv2pauqet3%4=r$ea25%
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["evenements-rajapicop.onrender.com", "127.0.0.1"]
+ALLOWED_HOSTS = ["evenements-rajapicop.onrender.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
