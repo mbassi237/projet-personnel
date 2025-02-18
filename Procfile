@@ -1,1 +1,1 @@
-web: gunicorn RAJAPI-COP.wsgi
+web: gunicorn gestion_formation_evenement_mentorat.wsgi

@@ -9,3 +9,4 @@ PyJWT==2.10.1
 serializers==0.2.4
 sqlparse==0.5.2
 tzdata==2024.2
+gunicorn==23.0.0
