@@ -139,6 +139,7 @@ my_project/
 
 pour creer une ressource
 Authorization: Token VOTRE_TOKEN
+
 [
     {
         "Title": "Formation Django",
