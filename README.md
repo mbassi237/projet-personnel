@@ -135,6 +135,8 @@ my_project/
 |--------------------------|-------------|---------------------------|
 | Liste des ressources      | `GET`       | `/api/formation/`          |
 | Créer une ressource       | `POST`      | `/api/formation/create/`   |
+
+
 pour creer une ressource
 Authorization: Token VOTRE_TOKEN
 [
