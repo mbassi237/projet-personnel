@@ -14,4 +14,5 @@ urlpatterns = [
     path('mentorship/search/', MentorSearchView.as_view(), name='mentor-search'),
     path('mentorship/recommend/', MentorRecommendationView.as_view(), name='mentor-recommendation'),
     path('mentorship/progress/', MentoringProgressView.as_view(), name='mentoring-progress'),
+    path('mentorship/demande/', RequestMentorView.as_view(), name='mentoring-demande'),
 ]
