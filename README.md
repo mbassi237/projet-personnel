@@ -105,14 +105,8 @@ my_project/
    Modifiez `settings.py` pour ajouter les informations de votre base de données PostgreSQL :
    ```python
    DATABASES = {
-       'default': {
-           'ENGINE': 'django.db.backends.postgresql',
-           'NAME': 'nom_de_la_base',
-           'USER': 'utilisateur',
-           'PASSWORD': 'mot_de_passe',
-           'HOST': 'localhost',
-           'PORT': '5432',
-       }
+       'default':
+      dj_database_url.config(default='postgresql://rajapi:PpKxHkhRbt3Zj4lVrQI5foJWbIRMLrKo@dpg-cv2oeg5umphs739t27m0-a.oregon-postgres.render.com/bd_rajapi')
    }
    ```
 
@@ -141,6 +135,22 @@ my_project/
 |--------------------------|-------------|---------------------------|
 | Liste des ressources      | `GET`       | `/api/formation/`          |
 | Créer une ressource       | `POST`      | `/api/formation/create/`   |
+pour creer une ressource
+Authorization: Token VOTRE_TOKEN
+[
+    {
+        "Title": "Formation Django",
+        "Description": "Vidéo",
+        "Type": "Débutant",
+        "File_Link": "https://www.youtube.com/watch?v=nI8xnkIn0_o&list=TLPQMDQwMzIwMjWrBloB3oS4-Q&index=2",
+        "Published_Date": "2025-03-01",
+        "Published_Date": "2025-03-01",
+        "Status": "",
+        "Created_At":"",
+        "Update_At": ""
+    }
+]
+
 
 ---
 
@@ -151,6 +161,12 @@ my_project/
 | Détails d'un événement     | `GET`       | `/api/evenements/<id>/`        |
 | Ajouter au calendrier      | `POST`      | `/api/eventements/<event_id>/calendar/` |
 
+POST /api/events/3/register/
+Authorization: Token VOTRE_TOKEN
+
+POST /api/events/3/calendar/
+Authorization: Token VOTRE_TOKEN
+
 ---
 
 ### **3. Système de Mentorat**
@@ -160,6 +176,18 @@ my_project/
 | Recherche de mentors            | `GET`       | `/api/mentorship/mentor-search/`          |
 | Recommandation de mentors       | `GET`       | `/api/mentorship/mentor-recommendation/`       |
 | Suivi des progrès du mentorat   | `GET`       | `/api/mentorship/progress/`        |
+
+GET /api/mentorship/search/?skills=gestion
+
+POST /api/mentorship/request/1/
+Authorization: Token VOTRE_TOKEN
+
+GET /api/mentorship/progress/
+Authorization: Token VOTRE_TOKEN
+
+GET /api/mentorship/demande/
+Authorization: Token VOTRE_TOKEN
+
 
 ---
 
