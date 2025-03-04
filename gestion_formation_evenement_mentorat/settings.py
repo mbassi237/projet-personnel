@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
+import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-bi)45+m=s9i-w$#_ma8%o535^4^4h&qv2pauqet3%4=r$ea25%'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["evenements-rajapicop.onrender.com", "localhost", "127.0.0.1"]
 
@@ -79,30 +81,8 @@ WSGI_APPLICATION = 'gestion_formation_evenement_mentorat.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'rajapi_DB',
-        'USER': 'rajapi-cop',
-        'PASSWORD': 'commando93230',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    },
-    'evenement_DB': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'evenement_DB',
-        'USER': 'rajapi-cop',
-        'PASSWORD': 'commando93230',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    },
-    'mentorat_DB': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mentorat_DB',
-        'USER': 'rajapi-cop',
-        'PASSWORD': 'commando93230',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    }
+    'default':
+    dj_database_url.config(default='postgresql://rajapi:PpKxHkhRbt3Zj4lVrQI5foJWbIRMLrKo@dpg-cv2oeg5umphs739t27m0-a.oregon-postgres.render.com/bd_rajapi')
 }
 
 
