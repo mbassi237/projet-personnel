@@ -85,6 +85,17 @@ DATABASES = {
     dj_database_url.config(default='postgresql://rajapi:PpKxHkhRbt3Zj4lVrQI5foJWbIRMLrKo@dpg-cv2oeg5umphs739t27m0-a.oregon-postgres.render.com/bd_rajapi')
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'evenements.authentication.MicroserviceTokenAuthentication',
+        'formation.authentication.MicroserviceTokenAuthentication',
+        'mentorship.authentication.MicroserviceTokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
