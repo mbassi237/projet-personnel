@@ -11,4 +11,4 @@ sqlparse==0.5.2
 tzdata==2024.2
 gunicorn==23.0.0
 dj_database_url==2.3.0
-requests=2.32.3
+requests==2.32.3
