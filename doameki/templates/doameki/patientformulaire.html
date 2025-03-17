@@ -1,0 +1,129 @@
+{%  load  static  %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enregistrer patient</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="utf-8" />
+            <title>Metrica - Admin & Dashboard Template</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+            <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
+            <meta content="" name="author" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+            <!-- App favicon -->
+            <link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}">
+
+       
+
+     <!-- App css -->
+     <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+     <link href="{% static 'assets/css/icons.min.css' %}" rel="stylesheet" type="text/css" />
+     <link href="{% static 'assets/css/app.min.css' %}" rel="stylesheet" type="text/css" />
+     <style>
+        .col-lg-6{
+            margin-top: 40px;
+            margin-left: 25%;   
+        }
+     </style>
+</head>
+<body>
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Enregistrer un Patient</h2>
+                </div><!--end card-header-->
+                <div class="card-body">            
+                    <form id="form-validation-2" class="form" method="POST" action="{% url 'patient-create' %}">
+                        {% csrf_token %}
+                        <div class="mb-2">
+                            <label for="nom" class="mb-2">Nom</label>
+                            <input class="form-control" type="text" name="nom" placeholder="Enter nom" required>
+                            <small>Error Message</small>
+                        </div>
+                        <div class="mb-2">
+                            <label for="sexe" class="mb-2">Sexe</label>
+                            <select class="form-control" name="sexe" required>
+                                <option value="">-- Choisir le sexe --</option>
+                                <option value="Masculin">Masculin</option>
+                                <option value="Feminin">Féminin</option>
+                            </select>
+                            <small>Error Message</small>
+                        </div>
+                        <div class="mb-2">
+                            <label for="age" class="mb-2">Age</label>
+                            <input class="form-control" type="number" name="age" placeholder="Enter votre age" required>
+                            <small>Error Message</small>
+                        </div>
+                        <div class="mb-2">
+                            <label for="email" class="mb-2">Email</label>
+                            <input class="form-control" type="email" name="email" placeholder="Enter votre mail" required>
+                            <small>Error Message</small>
+                        </div>
+                        <button type="submit" class="btn btn-de-primary">Enregistrer</button>
+                    </form><!--end form-->        
+                </div><!--end card-body-->
+            </div><!--end card-->
+        </div> <!-- end col -->
+
+        
+    </div> <!-- end row -->
+
+</div><!-- container -->
+
+
+<div class="col-lg-7">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title">Vos Patients</h4>
+            <p class="text-muted mb-0">
+                Consulter vos patients deja enregistres
+            </p>
+        </div><!--end card-header-->
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                    <tr>
+                        <th>Code Patient</th>
+                        <th>Nom</th>
+                        <th>Sexe</th>
+                        <th>Age</th>
+                        <th>Email</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for d in patient_list %}
+                        <tr>
+                            <td>{{ d.code_patient }}</td>
+                            <td>{{ d.nom }}</td>
+                            <td>{{ d.sexe }}</td>
+                            <td>{{ d.age }}</td>
+                            <td>{{ d.email }}</td>
+                            <td class="text-end">                                                       
+                                <a href="#"><i class="las la-pen text-secondary font-16"></i></a>
+                                <a href="{% url 'delete-patient' d.id %}"><i class="las la-trash-alt text-secondary font-16"></i></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table><!--end /table-->
+            </div><!--end /tableresponsive-->
+        </div><!--end card-body-->
+    </div><!--end card-->
+</div> <!-- end col -->
+
+    <!-- Javascript  -->
+    <!-- vendor js -->
+    
+    <script src="assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/libs/simplebar/simplebar.min.js"></script>
+    <script src="assets/libs/feather-icons/feather.min.js"></script>
+    <!-- App js -->
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
