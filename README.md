@@ -49,7 +49,7 @@ Avant de lancer le projet, assurez-vous d'avoir les éléments suivants install�
 
 ### 1. Enregistrement d'un patient
 
-**URL:** `/api/enregistrer-patient/`
+**URL:** `https://projet-personnel.onrender.com/api/patients/`
 
 **Méthodes:** `POST`
 
@@ -60,7 +60,7 @@ Avant de lancer le projet, assurez-vous d'avoir les éléments suivants install�
 **Exemple de requête (POST)** :
 
 ```bash
-    curl -X POST http://127.0.0.1:8000/api/enregistrer-patient/ \
+    curl -X POST https://projet-personnel.onrender.com/api/patients/ \
     -d "nom=Jean Doe" \
     -d "sexe=Masculin" \
     -d "age=30" \
@@ -77,9 +77,9 @@ Avant de lancer le projet, assurez-vous d'avoir les éléments suivants install�
 
 ### 2. Analyse d'un frottis sanguin
 
-**URL:** `/api/analysefrottis/`
+**URL:** `https://projet-personnel.onrender.com/api/analysefrottis/`
 
-**Méthodes:** `GET`, `POST`
+**Méthodes:** `POST`
 
 **Description:**
 -Selectionner un patient
@@ -90,7 +90,7 @@ Avant de lancer le projet, assurez-vous d'avoir les éléments suivants install�
 **Exemple de requête (POST)** :
 
 ```bash
-    curl -X POST http://127.0.0.1:8000/api/analysefrottis/ \
+    curl -X POST https://projet-personnel.onrender.com/api/analysefrottis/ \
     -F "id_patient=1" \
     -F "image=@path_to_frottis_image.jpg"
 ```
@@ -102,7 +102,7 @@ L'utilisateur est redirigé vers la page affichant les résultats d'analyse.
 
 ### 3. Génération d'un rapport d'analyse
 
-**URL:** `/api/rapportpdf/`
+**URL:** `https://projet-personnel.onrender.com/api/rapportpdf/`
 
 **Méthodes:** `POST`
 
@@ -113,7 +113,7 @@ L'utilisateur est redirigé vers la page affichant les résultats d'analyse.
 **Exemple de requête (POST)** :
 
 ```bash
-    curl -X POST http://127.0.0.1:8000/api/rapportpdf/ \
+    curl -X POST https://projet-personnel.onrender.com/api/rapportpdf/ \
     -H "Content-Type: application/json" \
     -d '{"id_patient": 1}'
 ```
