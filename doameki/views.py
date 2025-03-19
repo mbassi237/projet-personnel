@@ -23,11 +23,11 @@ from reportlab.pdfgen import canvas
 from django.contrib import messages
 import os
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 # Create your views here.
 
 # Enregistrer patient
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 def EnregistrerPatient(request):
     patient_list = Patient.objects.all()
     if request.method == 'POST':
@@ -41,8 +41,8 @@ def EnregistrerPatient(request):
         identifiant = data.id
         data.code_patient = "P" + str(identifiant).zfill(24) # Generer automatiquement code_patient
         data.save()
-        #response = HttpResponse(json.dumps({'reponse': 'patient bien enregistree'}), content_type='application/json')
-    return render(request, 'doameki/patientformulaire.html', {'patient_list': patient_list})
+        response = HttpResponse(json.dumps({'reponse': 'patient bien enregistree'}), content_type='application/json')
+    return Response(response)
 
 
 
@@ -71,17 +71,18 @@ def detection_malaria(image_path, model_path):
     
     # Creation d'un dictionnaire pour les resultats
     results = {
-        classnames[i]: round(float(prediction[i]), ndigits=1)
+        classnames[i]: round(float(prediction[i]), ndigits=2)
         for i in range(len(classnames))
     }
     
     # Tri par probabilites decroissantes
     resultats_tries = sorted(results.items(), key=lambda x: x[1], reverse=True)
-    return resultats_tries
+    results_json = json.dumps(resultats_tries, indent=4)
+    return results_json
 
 
 # Analyser une image de frottis sanguin d'un patient
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 def AnalyseFrottis(request):
     patients = Patient.objects.all()  # Récupération des patients pour affichage dans le formulaire
     if request.method == 'POST':
@@ -101,14 +102,21 @@ def AnalyseFrottis(request):
             frottis_instance.status = resultat_analyse
             frottis_instance.save()
 
-            return render(request, 'doameki/rapport.html', {
+            # Retourner les résultats en JSON
+            return JsonResponse({
+                'status': 'success',
                 'resultats': resultat_analyse,
-                'patients': patients
+                'id_patient': patient.code_patient,
+                'nom_patient': patient.nom,
             })
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    return render(request, 'doameki/rapport.html', {'patients': patients})
+        else:
+            return JsonResponse({
+                'status': 'error',
+                'errors': serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    return JsonResponse({'status': 'info', 'message': 'Utilisez une requête POST pour analyser un frottis.'})
 
 
 
