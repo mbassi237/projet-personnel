@@ -51,7 +51,7 @@ Avant de lancer le projet, assurez-vous d'avoir les éléments suivants install�
 
 **URL:** `/api/enregistrer-patient/`
 
-**Méthodes:** `GET`, `POST`
+**Méthodes:** `POST`
 
 **Description:**
 - Affiche un formulaire pour enregistrer un patient.
