@@ -24,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'django-insecure-tiosmtw($!p)f9k^oo5tk*mg+(zh1uk84=&7*iemsyb0v2_rd('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["https://projet-personnel.onrender.com", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["https://doameki.onrender.com", "localhost", "127.0.0.1"]
 
 
 # Application definition
