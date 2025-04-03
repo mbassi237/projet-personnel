@@ -261,6 +261,7 @@ GET /api/mentorship/progress/
 Authorization: Token VOTRE_TOKEN
 
 ```
+Reponse:
 [
     {
         "id": 1,
@@ -302,6 +303,7 @@ Authorization: Token VOTRE_TOKEN
 
 GET /api/mentorship/progress/
 Authorization: Token VOTRE_TOKEN
+Reponse:
 ```
 [
     {
