@@ -249,21 +249,122 @@ Authorization: Token VOTRE_TOKEN
 ### **3. Système de Mentorat**
 | **Action**                     | **Méthode**  | **Endpoint**                     |
 |---------------------------------|-------------|-----------------------------------|
-| Introduction au mentorat        | `GET`       | `/api/mentorship/mentoring-introduction`                 |
-| Recherche de mentors            | `GET`       | `/api/mentorship/mentor-search/`          |
-| Recommandation de mentors       | `GET`       | `/api/mentorship/mentor-recommendation/`       |
+| Introduction au mentorat        | `GET`       | `/api/mentorship/`                 |
+| Recherche de mentors            | `GET`       | `/api/mentorship/search/`          |
+| Recommandation de mentors       | `GET`       | `/api/mentorship/recommend/`       |
 | Suivi des progrès du mentorat   | `GET`       | `/api/mentorship/progress/`        |
+| Demande d'un mentorat           | `GET`       | `/api/mentorship/demande/`        |
 
 GET /api/mentorship/search/?skills=gestion
-
-POST /api/mentorship/request/1/
-Authorization: Token VOTRE_TOKEN
 
 GET /api/mentorship/progress/
 Authorization: Token VOTRE_TOKEN
 
+```
+[
+    {
+        "id": 1,
+        "username": "mentor_1",
+        "email": "mentor1@example.com",
+        "phone_number": "+237600000001",
+        "is_verified": true
+    },
+    {
+        "id": 2,
+        "username": "mentor_2",
+        "email": "mentor2@example.com",
+        "phone_number": "+237600000002",
+        "is_verified": true
+    },
+    {
+        "id": 3,
+        "username": "mentor_3",
+        "email": "mentor3@example.com",
+        "phone_number": "+237600000003",
+        "is_verified": false
+    },
+    {
+        "id": 4,
+        "username": "mentor_4",
+        "email": "mentor4@example.com",
+        "phone_number": "+237600000004",
+        "is_verified": true
+    },
+    {
+        "id": 5,
+        "username": "mentor_5",
+        "email": "mentor5@example.com",
+        "phone_number": "+237600000005",
+        "is_verified": false
+    }
+]
+```
+
+GET /api/mentorship/progress/
+Authorization: Token VOTRE_TOKEN
+```
+[
+    {
+        "mentee_info": {
+            "id": 42,
+            "username": "merlinb",
+            "email": "merlinb@example.com",
+            "first_name": "Merlin",
+            "last_name": "Brice"
+        },
+        "mentor_info": {
+            "id": 12,
+            "username": "Mentor_12",
+            "phone_number": "Non disponible",
+            "is_verified": true
+        },
+        "Start_Date": "2024-04-10",
+        "End_Date": "2024-06-10",
+        "Status": "active",
+        "Created_At": "2024-04-01T12:00:00Z",
+        "Updated_At": "2024-04-01T12:00:00Z"
+    }
+]
+```
+reponse si mentorat pas trouve
+```
+{
+    "message": "Aucune relation de mentorat active trouvée"
+}
+```
+
 GET /api/mentorship/demande/
 Authorization: Token VOTRE_TOKEN
+```
+Body:
+{
+    "Start_Date": "2024-04-10",
+    "End_Date": "2024-06-10"
+}
+```
+
+```
+Reponse:
+{
+    "message": "Demande de mentorat créée avec succès",
+    "mentoring": {
+        "id": 12,
+        "Start_Date": "2024-04-10",
+        "End_Date": "2024-06-10",
+        "Status": "active",
+        "Created_At": "2024-04-01T12:00:00Z",
+        "Updated_At": "2024-04-01T12:00:00Z",
+        "mentee_info": {
+            "id": 42,
+            "username": "merlinb",
+            "email": "merlinb@example.com",
+            "first_name": "Merlin",
+            "last_name": "Brice"
+        },
+        "mentor_id": 5
+    }
+}
+```
 
 
 ---
