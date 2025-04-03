@@ -87,9 +87,9 @@ DATABASES = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'evenements.authentication.MicroserviceTokenAuthentication',
+        #'evenements.authentication.MicroserviceTokenAuthentication',
         'formation.authentication.MicroserviceTokenAuthentication',
-        'mentorship.authentication.MicroserviceTokenAuthentication',
+        #'mentorship.authentication.MicroserviceTokenAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',

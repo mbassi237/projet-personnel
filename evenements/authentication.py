@@ -19,7 +19,7 @@ class MicroserviceTokenAuthentication(BaseAuthentication):
             return None
 
         # Endpoint de vérification du token
-        verify_url = 'https://rajapi-cop-auth-api.onrender.com/auth/token/'
+        verify_url = 'https://rajapi-cop-auth-api.onrender.com/auth/token/verify'
 
         try:
             # Envoyer une requête de vérification

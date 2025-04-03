@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django.shortcuts import render
+import requests
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -12,17 +13,44 @@ from formation.authentication import MicroserviceTokenAuthentication
 
 class CreateRessourceView(APIView):
     """
-    Vue pour creer une ressource de formation
+    Vue pour créer une ressource de formation.
     """
-    authentication_classes = [MicroserviceTokenAuthentication]
+    authentication_classes = [MicroserviceTokenAuthentication]  # Utilisation de l'authentification externe
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        """
+        Permet à un utilisateur authentifié de créer une ressource.
+        """
+        # Vérifier que l'utilisateur est bien authentifié via le microservice
+        if not request.user:
+            return Response({"error": "Utilisateur non authentifié"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Récupérer l'ID de l'utilisateur et ses infos depuis le microservice
         user_id = request.user.id
-        serializer = RessourceSerializer(data=request.data)
+        user_info = {
+            "id": user_id,
+            "username": request.user.username,
+            "email": request.user.email,
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name,
+        }
+
+        # Ajouter l’auteur à la requête avant validation
+        data = request.data.copy()
+        data["Author_Id"] = user_id  # Stocker seulement l'ID de l'auteur dans la BD
+
+        # Sérialisation et validation
+        serializer = RessourceSerializer(data=data)
         if serializer.is_valid():
-            serializer.save(author=user_id)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            ressource = serializer.save()  # L’auteur est enregistré avec la ressource
+
+            # Construction de la réponse avec les infos utilisateur
+            response_data = serializer.data
+            response_data["author_info"] = user_info  # Ajout des infos utilisateur
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 import urllib.parse
-from evenements.authentication import MicroserviceTokenAuthentication
+from formation.authentication import MicroserviceTokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response

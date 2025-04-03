@@ -6,7 +6,7 @@ from datetime import datetime
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from mentorship.authentication import MicroserviceTokenAuthentication
+from formation.authentication import MicroserviceTokenAuthentication
 from mentorship.models import Mentoring
 from mentorship.serializers import MentoringSerializer
 from user.models import CustomUser

@@ -1,4 +1,4 @@
-from user.models import CustomUser
+#from user.models import CustomUser
 from django.db import models
 
 # Create your models here.
@@ -13,7 +13,7 @@ class Events(models.Model):
     Start_Date_Time = models.DateTimeField()
     End_Date_Time = models.DateTimeField()
     Localisation = models.CharField(max_length=255, null=True, blank=True)
-    Organized_By = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    #Organized_By = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     Participation_Link = models.URLField(max_length=255, null=True, blank=True)
     Reminber_Set = models.CharField(max_length=255, null=True, blank=True)
     Summary = models.CharField(max_length=255, null=True, blank=True)
@@ -24,4 +24,4 @@ class Events(models.Model):
     Updated_At = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.Title} ({self.Organized_By})"
+        return f"{self.Title} ({self.Title})"
