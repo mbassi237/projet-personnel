@@ -136,10 +136,14 @@ my_project/
 | Liste des ressources      | `GET`       | `/api/formation/`          |
 | Créer une ressource       | `POST`      | `/api/formation/create/`   |
 
+Pour voir la liste des evenements
+GET /api/formation/
+Authorization: Token VOTRE_TOKEN
+
 
 pour creer une ressource
 Authorization: Token VOTRE_TOKEN
-
+```
 [
     {
         "Title": "Formation Django",
@@ -148,21 +152,91 @@ Authorization: Token VOTRE_TOKEN
         "File_Link": "https://www.youtube.com/watch?v=nI8xnkIn0_o&list=TLPQMDQwMzIwMjWrBloB3oS4-Q&index=2",
         "Published_Date": "2025-03-01",
         "Published_Date": "2025-03-01",
-        "Status": "",
-        "Created_At":"",
-        "Update_At": ""
+        "Status": "published",
+        "Created_At":"2024-04-01T12:00:00Z",
+        "Update_At": "2024-04-01T12:00:00Z"
     }
 ]
+```
 
+```
+{
+    "id": 1,
+    "Title": "Apprendre Django",
+    "Description": "Formation complète sur Django REST Framework",
+    "Type": "video",
+    "File_Link": "https://example.com/django.mp4",
+    "Published_Date": "2024-04-01",
+    "Author_Id": 42,
+    "Status": "published",
+    "Created_At": "2024-04-01T12:00:00Z",
+    "Update_At": "2024-04-01T12:00:00Z",
+    "author_info": {
+        "id": 42,
+        "username": "merlinb",
+        "email": "merlinb@example.com",
+        "first_name": "Merlin",
+        "last_name": "Brice"
+    }
+}
+
+```
 
 ---
 
 ### **2. Gestion des Événements**
 | **Action**                 | **Méthode**  | **Endpoint**               |
 |---------------------------|-------------|----------------------------|
+| creer un evenements        |  `POST`     | ``/api/evenements/create/  |
 | Recherche evenements       | `GET`       | `/api/evenements/`             |
 | Détails d'un événement     | `GET`       | `/api/evenements/<id>/`        |
 | Ajouter au calendrier      | `POST`      | `/api/eventements/<event_id>/calendar/` |
+
+pour creer un evenement
+Authorization: Token VOTRE_TOKEN
+```
+Body:
+{
+    "Title": "Conférence IA",
+    "Description": "Une conférence sur l'IA et le Machine Learning.",
+    "Start_Date_Time": "2024-04-10T10:00:00Z",
+    "End_Date_Time": "2024-04-10T12:00:00Z",
+    "Localisation": "Université de Yaoundé",
+    "Participation_Link": "https://example.com/ia-conference",
+    "Reminber_Set": "1 heure avant",
+    "Summary": "Résumé de la conférence",
+    "Timezone": "Africa/Douala",
+    "Recurrence": "every week",
+    "Attendees": "john@example.com, alice@example.com"
+}
+```
+
+```
+{
+    "id": 1,
+    "Title": "Conférence IA",
+    "Description": "Une conférence sur l'IA et le Machine Learning.",
+    "Start_Date_Time": "2024-04-10T10:00:00Z",
+    "End_Date_Time": "2024-04-10T12:00:00Z",
+    "Localisation": "Université de Yaoundé",
+    "Participation_Link": "https://example.com/ia-conference",
+    "Reminber_Set": "1 heure avant",
+    "Summary": "Résumé de la conférence",
+    "Timezone": "Africa/Douala",
+    "Recurrence": "every week",
+    "Attendees": "john@example.com, alice@example.com",
+    "Created_At": "2024-04-01T12:00:00Z",
+    "Updated_At": "2024-04-01T12:00:00Z",
+    "Organized_By": 42,
+    "organizer_info": {
+        "id": 42,
+        "username": "merlinb",
+        "email": "merlinb@example.com",
+        "first_name": "Merlin",
+        "last_name": "Brice"
+    }
+}
+```
 
 POST /api/events/3/register/
 Authorization: Token VOTRE_TOKEN
