@@ -8,8 +8,53 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Q
 from .models import Events
+from rest_framework import status
 from .serializers import EventSerializer
 
+
+
+
+class CreateEventView(APIView):
+    """
+    Vue pour créer un événement.
+    """
+    authentication_classes = [MicroserviceTokenAuthentication]  # Utilisation de l'authentification externe
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """
+        Permet à un utilisateur authentifié de créer un événement.
+        """
+        # Vérifier que l'utilisateur est bien authentifié via le microservice
+        if not request.user:
+            return Response({"error": "Utilisateur non authentifié"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Récupérer l'ID de l'utilisateur et ses infos depuis le microservice
+        user_id = request.user.id
+        user_info = {
+            "id": user_id,
+            "username": request.user.username,
+            "email": request.user.email,
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name,
+        }
+
+        # Ajouter l’organisateur à la requête avant validation
+        data = request.data.copy()
+        data["Organized_By"] = user_id  # Stocke seulement l'ID de l’organisateur dans la BD
+
+        # Sérialisation et validation
+        serializer = EventSerializer(data=data)
+        if serializer.is_valid():
+            event = serializer.save()  # L’organisateur est enregistré avec l’événement
+
+            # Construction de la réponse avec les infos utilisateur
+            response_data = serializer.data
+            response_data["organizer_info"] = user_info  # Ajout des infos utilisateur
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class EventListView(APIView):
     """
