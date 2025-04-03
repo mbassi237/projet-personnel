@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from formation.authentication import MicroserviceTokenAuthentication
 from mentorship.models import Mentoring
+from rest_framework import status
 from mentorship.serializers import MentoringSerializer
 from user.models import CustomUser
 
@@ -127,7 +128,7 @@ class RequestMentorView(APIView):
     """
     Vue pour permettre à un utilisateur de demander un mentor.
     """
-    authentication_classes = [MicroserviceTokenAuthentication]  #Utiliser l'authentification externe
+    authentication_classes = [MicroserviceTokenAuthentication]  # Utiliser l'authentification externe
     permission_classes = [IsAuthenticated]
 
     def post(self, request, mentor_id):
@@ -136,57 +137,76 @@ class RequestMentorView(APIView):
         """
         # Vérifier que l'utilisateur est bien authentifié via le microservice
         if not request.user:
-            return Response({"error": "Utilisateur non authentifié"}, status=401)
+            return Response({"error": "Utilisateur non authentifié"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        user_id = request.user["id"]  #Récupérer l'ID du mentee depuis l'authentification externe
-        mentor_id = int(mentor_id)  #S'assurer que l'ID du mentor est un entier
+        # Récupérer les infos du mentee depuis le microservice
+        mentee_id = request.user.id
+        mentee_info = {
+            "id": mentee_id,
+            "username": request.user.username,
+            "email": request.user.email,
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name,
+        }
 
-        # Vérifier si l'utilisateur n'essaie pas de se mentorer lui-même
-        if user_id == mentor_id:
-            return Response({"error": "Vous ne pouvez pas être votre propre mentor"}, status=400)
+        # Convertir `mentor_id` en entier
+        try:
+            mentor_id = int(mentor_id)
+        except ValueError:
+            return Response({"error": "ID du mentor invalide"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Vérifier si l'utilisateur essaie de se mentorer lui-même
+        if mentee_id == mentor_id:
+            return Response({"error": "Vous ne pouvez pas être votre propre mentor"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Vérifier si une relation de mentorat existe déjà
-        existing_mentorship = Mentoring.objects.filter(Mentor_Id=mentor_id, Mentee_Id=user_id, Status="active").exists()
+        existing_mentorship = Mentoring.objects.filter(
+            Start_Date__lte=datetime.now().date(),
+            End_Date__gte=datetime.now().date(),
+            Status="active"
+        ).exists()
 
         if existing_mentorship:
-            return Response({"error": "Vous avez déjà un mentorat actif avec cet utilisateur"}, status=400)
+            return Response({"error": "Vous avez déjà un mentorat actif avec cet utilisateur"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Récupérer les données de la requête
-        start_date = request.data.get('Start_Date')
-        end_date = request.data.get('End_Date')
+        # Vérifier les dates envoyées
+        start_date = request.data.get("Start_Date")
+        end_date = request.data.get("End_Date")
 
-        # Vérifier les dates
         try:
-            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d")
-            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d")
+            start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+            end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
 
             if end_date_obj <= start_date_obj:
-                return Response({"error": "La date de fin doit être après la date de début"}, status=400)
+                return Response({"error": "La date de fin doit être après la date de début"}, status=status.HTTP_400_BAD_REQUEST)
         except ValueError:
-            return Response({"error": "Format de date invalide, utilisez YYYY-MM-DD"}, status=400)
+            return Response({"error": "Format de date invalide, utilisez YYYY-MM-DD"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Créer la demande de mentorat
+        # Créer la relation de mentorat
         mentorship = Mentoring.objects.create(
-            Mentor_Id=mentor_id,
-            Mentee_Id=user_id,
-            Start_Date=start_date,
-            End_Date=end_date
+            Start_Date=start_date_obj,
+            End_Date=end_date_obj
         )
 
-        # Sérialiser la réponse avec le `MentoringSerializer`
+        # Sérialisation de la relation
         serializer = MentoringSerializer(mentorship)
+
+        # Ajouter les infos du mentor et mentee dans la réponse API
+        response_data = serializer.data
+        response_data["mentee_info"] = mentee_info
+        response_data["mentor_id"] = mentor_id  # Affichage de l'ID du mentor
 
         return Response({
             "message": "Demande de mentorat créée avec succès",
-            "mentoring": serializer.data
-        }, status=201)
+            "mentoring": response_data
+        }, status=status.HTTP_201_CREATED)
 
 
 class MentoringProgressView(APIView):
     """
     Suivi des progrès de l'utilisateur dans le cadre du mentorat.
     """
-    authentication_classes = [MicroserviceTokenAuthentication]  #Appliquer l'authentification
+    authentication_classes = [MicroserviceTokenAuthentication]  # Appliquer l'authentification
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -195,33 +215,42 @@ class MentoringProgressView(APIView):
         """
         # Vérifier que l'utilisateur est bien authentifié via le microservice
         if not request.user:
-            return Response({"error": "Utilisateur non authentifié"}, status=401)
+            return Response({"error": "Utilisateur non authentifié"}, status=status.HTTP_401_UNAUTHORIZED)
 
-        # Récupérer l'ID et l'email de l'utilisateur à partir du token validé
-        user_email = request.user.email
-        user_id = request.user.id
+        # Récupérer les informations de l'utilisateur
+        mentee_id = request.user.id
+        mentee_info = {
+            "id": mentee_id,
+            "username": request.user.username,
+            "email": request.user.email,
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name,
+        }
 
-        # Filtrer les mentorats où l'utilisateur est mentee
-        mentorings = Mentoring.objects.filter(Mentee_Id=user_id, Status="active").order_by('-Start_Date')
+        # Filtrer les mentorats actifs de l'utilisateur (en tant que mentee)
+        mentorings = Mentoring.objects.filter(Status="active").order_by('-Start_Date')
 
         if not mentorings.exists():
-            return Response({"message": "Aucune relation de mentorat active trouvée"}, status=404)
+            return Response({"message": "Aucune relation de mentorat active trouvée"}, status=status.HTTP_404_NOT_FOUND)
 
         data = []
         for mentoring in mentorings:
-            mentor = mentoring.Mentor_Id  # Récupération du mentor
+            # Simulation d'une récupération de mentor via le service d'authentification
+            mentor_info = {
+                "id": mentoring.id,  # À remplacer par une récupération via l'API d'authentification
+                "username": f"Mentor_{mentoring.id}",
+                "phone_number": "Non disponible",
+                "is_verified": True  # Valeur fictive à remplacer par la vraie donnée
+            }
 
             data.append({
-                'Mentor': {
-                    'username': mentor.username,
-                    'phone_number': mentor.phone_number,
-                    'is_verified': mentor.is_verified
-                },
-                'Start_Date': mentoring.Start_Date,
-                'End_Date': mentoring.End_Date,
-                'Status': mentoring.Status,
-                'Created_At': mentoring.Created_At,
-                'Updated_At': mentoring.Updated_At
+                "mentee_info": mentee_info,
+                "mentor_info": mentor_info,
+                "Start_Date": mentoring.Start_Date,
+                "End_Date": mentoring.End_Date,
+                "Status": mentoring.Status,
+                "Created_At": mentoring.Created_At,
+                "Updated_At": mentoring.Updated_At
             })
 
-        return Response(data, status=200)
+        return Response(data, status=status.HTTP_200_OK)
