@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
+from dotenv import load_dotenv
 from pathlib import Path
 
 import dj_database_url
@@ -17,6 +18,9 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv()
+URL_V = os.getenv('verify_url')
+URL_B = os.getenv('base_url')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -81,8 +85,15 @@ WSGI_APPLICATION = 'gestion_formation_evenement_mentorat.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default':
-    dj_database_url.config(default='postgresql://rajapi:PpKxHkhRbt3Zj4lVrQI5foJWbIRMLrKo@dpg-cv2oeg5umphs739t27m0-a.oregon-postgres.render.com/bd_rajapi')
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('name'),
+        'USER': os.getenv('user'),
+        'PASSWORD': os.getenv('password'),
+        'HOST': os.getenv('host'),
+        'PORT': os.getenv('port'),
+        'OPTIONS': {'sslmode': 'require'},
+    }
 }
 
 REST_FRAMEWORK = {
