@@ -105,9 +105,16 @@ my_project/
    Modifiez `settings.py` pour ajouter les informations de votre base de données PostgreSQL :
    ```python
    DATABASES = {
-       'default':
-      dj_database_url.config(default='postgresql://rajapi:PpKxHkhRbt3Zj4lVrQI5foJWbIRMLrKo@dpg-cv2oeg5umphs739t27m0-a.oregon-postgres.render.com/bd_rajapi')
-   }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('name'),
+        'USER': os.getenv('user'),
+        'PASSWORD': os.getenv('password'),
+        'HOST': os.getenv('host'),
+        'PORT': os.getenv('port'),
+        'OPTIONS': {'sslmode': 'require'},
+    }
+}
    ```
 
 5. **Effectuer les migrations**
