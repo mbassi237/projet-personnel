@@ -139,7 +139,21 @@ my_project/
 Pour voir la liste des evenements
 GET /api/formation/
 Authorization: Token VOTRE_TOKEN
-
+```
+Reponse:
+{
+   "id": 1,
+    "Title": "Apprendre Django",
+    "Description": "Formation complète sur Django REST Framework",
+    "Type": "video",
+    "File_Link": "https://example.com/django.mp4",
+    "Published_Date": "2024-04-01",
+    "Author_Id": 42,
+    "Status": "published",
+    "Created_At": "2024-04-01T12:00:00Z",
+    "Update_At": "2024-04-01T12:00:00Z",
+}
+```
 
 pour creer une ressource
 Authorization: Token VOTRE_TOKEN
