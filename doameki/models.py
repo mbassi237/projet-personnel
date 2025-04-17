@@ -15,7 +15,7 @@ class Patient(models.Model):
 
 
 class Frottis(models.Model):
-    status = models.CharField(max_length=80)
+    status = models.CharField(max_length=150)
     image = models.ImageField()
     id_patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     

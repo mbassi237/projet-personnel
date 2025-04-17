@@ -29,30 +29,103 @@ from django.http import HttpResponse, JsonResponse
 # Enregistrer patient
 @api_view(['POST'])
 def EnregistrerPatient(request):
-    patient_list = Patient.objects.all()
     if request.method == 'POST':
-        data = Patient(
-            nom=request.POST['nom'],
-            sexe=request.POST['sexe'],
-            age=request.POST['age'],
-            email=request.POST['email']
-        )
-        data.save()
-        identifiant = data.id
-        data.code_patient = "P" + str(identifiant).zfill(24) # Generer automatiquement code_patient
-        data.save()
-        response = HttpResponse(json.dumps({'reponse': 'patient bien enregistree'}), content_type='application/json')
-    return Response(response)
+        # Créer une instance de serializer avec les données de la requête
+        serializer = PatientSerializer(data=request.data)
+        
+        # Vérifier si les données sont valides
+        if serializer.is_valid():
+            # Sauvegarder le patient
+            patient = serializer.save()
+            
+            # Générer automatiquement le code_patient
+            patient.code_patient = "P" + str(patient.id).zfill(24)
+            patient.save()
+            
+            # Resérialiser avec le code_patient mis à jour
+            updated_serializer = PatientSerializer(patient)
+            
+            # Retourner la réponse avec les données du patient
+            return Response({
+                'reponse': 'patient bien enregistré',
+                'patient': updated_serializer.data
+            }, status=status.HTTP_201_CREATED)
+        
+        # Retourner les erreurs si les données ne sont pas valides
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+# Supprimer un patient
+@api_view(['DELETE'])
 def DeletePatient(request, pk):
-    patient_delete = get_object_or_404(Patient, id=pk)
-    if request.method == 'POST':
-        patient_delete.delete()
-        return redirect('patient-create')
-    context = {'bulletin_delete' : patient_delete}
-    return render(request, 'doameki/patientformulaire.html')
+    try:
+        patient = Patient.objects.get(id=pk)
+        patient.delete()
+        return Response({"message": "Patient supprimé avec succès"}, status=status.HTTP_204_NO_CONTENT)
+    except Patient.DoesNotExist:
+        return Response({"message": "Patient non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+
+
+# Afficher la liste des patients
+@api_view(['GET'])
+def ShowPatient(request):
+    patients = Patient.objects.all()
+    serializer = PatientSerializer(patients, many=True)
+    return Response(serializer.data)
+
+
+# Modifier un patient
+@api_view(['PUT', 'PATCH'])
+def UpdatePatient(request, pk):
+    try:
+        patient = Patient.objects.get(id=pk)
+        
+        # PATCH pour mise à jour partielle, PUT pour mise à jour complète
+        if request.method == 'PATCH':
+            serializer = PatientSerializer(patient, data=request.data, partial=True)
+        else:  # PUT
+            serializer = PatientSerializer(patient, data=request.data)
+            
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    except Patient.DoesNotExist:
+        return Response({"message": "Patient non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+# obtenir un patient spécifique
+@api_view(['GET'])
+def GetPatientDetail(request, patient_id):
+    try:
+        patient = Patient.objects.get(id=patient_id)
+        serializer = PatientSerializer(patient)
+        return Response(serializer.data)
+    except Patient.DoesNotExist:
+        return Response({"message": "Patient non trouvé"}, status=status.HTTP_404_NOT_FOUND)
+
+
+# Afficher la liste des patients avec leurs resultats
+@api_view(['GET'])
+def GetResultsPatient(request):
+    patients_analyses = Frottis.objects.select_related('id_patient').all()
+    serialzer = FrottisSerializer(patients_analyses, many=True)
+    return Response(serialzer.data)
+
+
+
+# afficher les diferents reultats d'un patient specifique
+@api_view(['GET'])
+def GetResultsPatientDetail(request, patient_id):
+    try:
+        patient_result = Frottis.objects.filter(id_patient=patient_id)
+        serializer = FrottisSerializer(patient_result, many=True)
+        return Response(serializer.data)
+    except Patient.DoesNotExist:
+        return Response({"message": "Resultats Patient non trouvé"}, status=status.HTTP_404_NOT_FOUND) 
+
 
 
 # fonction pour la detection du plasmodium avec le model CNN
@@ -76,9 +149,8 @@ def detection_malaria(image_path, model_path):
     }
     
     # Tri par probabilites decroissantes
-    resultats_tries = sorted(results.items(), key=lambda x: x[1], reverse=True)
-    results_json = json.dumps(resultats_tries, indent=4)
-    return results_json
+    #resultats_tries = sorted(results.items(), key=lambda x: x[1], reverse=True)
+    return results
 
 
 # Analyser une image de frottis sanguin d'un patient
@@ -162,5 +234,29 @@ def GenererRapport(request):
 
 
 
-def interface_analyse(request):
+def HomePage(request):
     return render(request, 'doameki/master.html')
+
+
+def PatientFormulaire(request):
+    return render(request, 'doameki/patientformulaire.html')
+
+
+def AuthRegister(request):
+    return render(request, 'doameki/auth-register.html')
+
+
+def AuthLogin(request):
+    return render(request, 'doameki/auth-login.html')
+
+
+def AuthRecover(request):
+    return render(request, 'doameki/auth-recover-pw.html')
+
+
+def Dashboard(request):
+    return render(request, 'doameki/dashboard.html')
+
+
+def AnalyseFrottisSanguin(request):
+    return render(request, 'doameki/analyse-frottis.html')

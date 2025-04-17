@@ -1,0 +1,182 @@
+{% extends 'doameki/master.html' %}
+{% load static %}
+
+{% block head %}
+<style>
+    body {
+        background-color: #f4f6f9;
+    }
+
+    .main-container {
+        top: 20px;
+        margin-bottom: 120px;
+    }
+
+    .card-custom {
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .img-area {
+        position: relative;
+        width: 100%;
+        height: 240px;
+        background: #f0f0f0;
+        border-radius: 15px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    .img-area .icon {
+        font-size: 80px;
+        color: #007bff;
+    }
+
+    .img-area h3 {
+        font-size: 18px;
+        margin-bottom: 6px;
+    }
+
+    .img-area p {
+        color: #999;
+        font-size: 14px;
+    }
+
+    .img-area p span {
+        font-weight: 600;
+    }
+
+    .img-area img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+    }
+
+    .img-area.active::before {
+        content: attr(data-img);
+        position: absolute;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 1;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .select-image {
+        display: block;
+        width: 100%;
+        padding: 12px 0;
+        background: #007bff;
+        color: white;
+        font-weight: 600;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .select-image:hover {
+        background: #0056b3;
+    }
+    footer.footer {
+        font-size: 12px;
+        padding: 8px 16px;
+        background-color: #f8f9fa; /* facultatif pour un fond clair */
+        color: #6c757d;
+        border-top: 1px solid #dee2e6;
+    }
+    footer.footer i {
+        font-size: 12px;
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container main-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card card-custom p-4">
+                <h3 class="mb-4 text-center">Analyse de Frottis</h3>
+                <form method="post" enctype="multipart/form-data" action="{% url 'analyse-frottis' %}">
+                    {% csrf_token %}
+                    <div class="row">
+                        <!-- Colonne gauche : sélection patient -->
+                        <div class="col-md-6 mb-4">
+                            <label for="id_patient" class="form-label fw-bold">Sélectionner un patient</label>
+                            <select class="form-select" name="id_patient" required>
+                                <option value="">-- Choisir un patient --</option>
+                                {% for p in patients %}
+                                    <option value="{{ p.id }}">{{ p.nom }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Colonne droite : Upload image -->
+                        <div class="col-md-6 mb-4">
+                            <input type="file" id="file" name="image" accept="image/*" hidden required>
+                            <div class="img-area" data-img="Aucune image">
+                                <i class="bx bxs-cloud-upload icon"></i>
+                                <h3>Upload Image</h3>
+                                <p>Image &lt; <span>2MB</span></p>
+                            </div>
+                            <button type="button" class="select-image">Sélectionner une image de frottis</button>
+                        </div>
+                    </div>
+
+                    <!-- Bouton analyser -->
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary w-100 fw-bold">🔍 Lancer l'analyse</button>
+                        </div>
+                    </div>
+                </form>
+                <!-- Espace réservé aux résultats -->
+                <div class="mt-4 p-4 border rounded bg-light text-center" style="min-height: 100px;">
+                    <p class="text-muted mb-0">Les résultats de l'analyse apparaîtront ici...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const selectImage = document.querySelector('.select-image');
+    const inputFile = document.querySelector('#file');
+    const imgArea = document.querySelector('.img-area');
+
+    selectImage.addEventListener('click', function () {
+        inputFile.click();
+    });
+
+    inputFile.addEventListener('change', function () {
+        const image = this.files[0];
+        const reader = new FileReader();
+        reader.onload = () => {
+            const allImg = imgArea.querySelectorAll('img');
+            allImg.forEach(item => item.remove());
+
+            const img = document.createElement('img');
+            img.src = reader.result;
+            imgArea.appendChild(img);
+            imgArea.classList.add('active');
+            imgArea.dataset.img = image.name;
+        }
+        reader.readAsDataURL(image);
+    });
+</script>
+{% endblock %}

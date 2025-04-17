@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-import dj_database_url
+#import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 #BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'django-insecure-tiosmtw($!p)f9k^oo5tk*mg+(zh1uk84=&7*iemsyb0v2_rd('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ["https://doameki.onrender.com", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'doameki',
+    'authentification',
 ]
 
 MIDDLEWARE = [
@@ -77,8 +78,15 @@ WSGI_APPLICATION = 'malaria.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default':
-    dj_database_url.config(default='postgresql://malaria_b42w_user:7T4xI95R4g3UeDFuvQ5uAwIIblS1hxES@dpg-cvdcbnt6l47c73csgo60-a.oregon-postgres.render.com/malaria_b42w')
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'DB_malaria',
+        'USER': 'admin_doameki',
+        'PASSWORD': 'commando93230',
+        'HOST': 'localhost',
+        'PORT': '5432'
+
+    }
 }
 
 
@@ -99,6 +107,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Pour la gestion des tokens
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
 
 
 # Internationalization
