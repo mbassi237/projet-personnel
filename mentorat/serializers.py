@@ -1,11 +1,19 @@
 from rest_framework import serializers
-from .models import Mentoring, MentoringMessage
+from .models import Mentoring, MentoringMessage, Mentor
+
 
 class MentoringSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mentoring
-        fields = ['mentor_id', 'mentee_id', 'Status', 'Start_Date', 'End_Date']
+        fields = '__all__'
 
+
+
+
+class MentorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mentor
+        fields = '__all__'
 
 
 class MentoringMessageSerializer(serializers.ModelSerializer):

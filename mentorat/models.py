@@ -2,14 +2,23 @@ from django.db import models
 
 # Create your models here.
 
+
+class Mentor(models.Model):
+    Nom_mentor = models.CharField(max_length=30)
+    Prenom_mentor = models.CharField(max_length=30)
+    Profession = models.CharField(max_length=30)
+    LastConnected = models.DateField(auto_now_add=True)
+
+
+
 class Mentoring(models.Model):
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('inactive', 'Inactive'),
     ]
-    #Mentor_Id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='mentorships_as_mentor')
+    Mentor_Id = models.ForeignKey(Mentor, on_delete=models.CASCADE)
     #Mentee_Id = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='mentorships_as_mentee')
-    mentor_id = models.IntegerField()
+    #mentor_id = models.IntegerField()
     mentee_id = models.IntegerField()
     Start_Date = models.DateField()
     End_Date = models.DateField()

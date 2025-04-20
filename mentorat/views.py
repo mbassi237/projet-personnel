@@ -16,55 +16,120 @@ from datetime import datetime
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Mentoring, MentoringMessage
-from .serializers import MentoringSerializer, MentoringMessageSerializer
+from .models import Mentoring, MentoringMessage, Mentor
+from .serializers import MentoringSerializer, MentoringMessageSerializer, MentorSerializer
 from mentorat.authentication import MicroserviceTokenAuthentication
 import requests
 
 
+# ----------------------- Vue pour Créer un mentor -------------------------
+class CreateMentorView(APIView):
+    """
+    Vue pour créer un profil de mentor.
+    """
+    authentication_classes = [MicroserviceTokenAuthentication]  # Authentification via service externe
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        """
+        Permet à un utilisateur authentifié de s'enregistrer comme mentor.
+        """
+        # Vérifier l'authentification
+        if not request.user:
+            return Response({"error": "Utilisateur non authentifié"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Infos utilisateur récupérées depuis le service d'authentification
+        user_info = {
+            "id": request.user.id,
+            "username": request.user.username,
+            "email": request.user.email,
+            "first_name": request.user.first_name,
+            "last_name": request.user.last_name
+        }
+
+        data = request.data.copy()
+
+        # Sérialisation et validation
+        serializer = MentorSerializer(data=data)
+        if serializer.is_valid():
+            mentor = serializer.save()
+
+            response_data = serializer.data
+            response_data["user_info"] = user_info  # Ajout des infos de l'utilisateur connecté
+
+            return Response(response_data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ----------------------- Créer et Lister les mentorats -------------------------
 class MentoringViewSet(viewsets.ViewSet):
     authentication_classes = [MicroserviceTokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    # Créer une demande de mentorat (Mentee)
     def create(self, request):
-        serializer = MentoringSerializer(data=request.data)
-        if serializer.is_valid():
-            # Récupérer l'ID du mentor depuis la requête
-            mentor_id = serializer.validated_data["mentor_id"]
+        """
+        Créer une demande de mentorat à partir du nom du mentor.
+        Le mentoré est automatiquement défini comme l'utilisateur connecté.
+        """
+        # Authentification de l'utilisateur connecté (mentee)
+        mentee_id = request.user.id
 
-            # Récupérer l'ID du mentee depuis le service d'authentification
-            mentee_id = request.user.id  # Supposons que le service renvoie un ID numérique
+        # Récupération des champs envoyés
+        mentor_name = request.data.get("Nom_mentor")
+        start_date = request.data.get("Start_Date")
+        end_date = request.data.get("End_Date")
 
-            mentoring = Mentoring.objects.create(
-                mentor_id=mentor_id,
-                mentee_id=mentee_id,
-                Start_Date=serializer.validated_data.get("Start_Date"),
-                End_Date=serializer.validated_data.get("End_Date"),
-                Status="active"
-            )
-            return Response(MentoringSerializer(mentoring).data, status=201)
-        return Response(serializer.errors, status=400)
+        # Vérification du mentor dans la base
+        try:
+            mentor = Mentor.objects.get(Nom_mentor__iexact=mentor_name)
+        except Mentor.DoesNotExist:
+            return Response({"error": f"Aucun mentor avec le nom '{mentor_name}'"}, status=404)
 
-    # Liste des demandes de mentorat (Mentor/Mentee)
+        # Création de l'objet Mentoring
+        mentoring = Mentoring.objects.create(
+            Mentor_Id=mentor,
+            mentee_id=mentee_id,
+            Start_Date=start_date,
+            End_Date=end_date,
+            Status="active"
+        )
+
+        # Réponse structurée
+        response = {
+            "mentee_id": mentee_id,
+            "mentor": {
+                "id": mentor.id,
+                "nom": mentor.Nom_mentor,
+                "prenom": mentor.Prenom_mentor,
+                "profession": mentor.Profession
+            },
+            "Start_Date": mentoring.Start_Date,
+            "End_Date": mentoring.End_Date,
+            "Status": mentoring.Status,
+            "Created_At": mentoring.Created_At,
+            "Updated_At": mentoring.Updated_At
+        }
+
+        return Response(response, status=201)
+
     def list(self, request):
-        user_id = request.user.id  # ID de l'utilisateur authentifié
-        mentorings = Mentoring.objects.filter(mentor_id=user_id) | Mentoring.objects.filter(mentee_id=user_id)
-        serializer = MentoringSerializer(mentorings, many=True)
+        user_id = request.user.id
+        mentorings = Mentoring.objects.filter(mentee_id=user_id) | Mentoring.objects.filter(Mentor_Id__id=user_id)
+        serializer = MentoringSerializer(mentorings.distinct(), many=True)
         return Response(serializer.data)
 
 
-
+# ----------------------- Accepter une demande -------------------------
 class MentoringAccepter(viewsets.ViewSet):
     authentication_classes = [MicroserviceTokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-    # Accepter/Rejeter une demande (Mentor) Permet au mentor d’accepter (active) ou rejeter (inactive) une demande.
+
     @action(detail=True, methods=['patch'])
     def respond(self, request, pk=None):
-        mentoring = Mentoring.objects.get(id=pk)
-        if mentoring.mentor_id != request.user.id:
+        mentoring = get_object_or_404(Mentoring, id=pk)
+        if mentoring.Mentor_Id.id != request.user.id:
             return Response({"error": "Permission denied"}, status=403)
-
         new_status = request.data.get('status')
         if new_status in ['active', 'inactive']:
             mentoring.Status = new_status
@@ -72,18 +137,16 @@ class MentoringAccepter(viewsets.ViewSet):
             return Response(MentoringSerializer(mentoring).data)
         return Response({"error": "Statut invalide"}, status=400)
 
+
+# ----------------------- Chat entre mentoré et mentor -------------------------
 class MentoringMessageViewSet(viewsets.ViewSet):
     authentication_classes = [MicroserviceTokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    # Envoyer un message dans le chat
-    # Envoyer un message dans le chat
     def create(self, request, mentoring_id=None):
-        mentoring = Mentoring.objects.get(id=mentoring_id)
-        sender_id = str(request.user.id)  # Convertir en chaîne pour correspondre au modèle
-
-        # Vérifier que l'utilisateur est mentor ou mentee
-        if request.user.id not in [mentoring.mentor_id, mentoring.mentee_id]:
+        mentoring = get_object_or_404(Mentoring, id=mentoring_id)
+        sender_id = str(request.user.id)
+        if request.user.id not in [mentoring.mentee_id, mentoring.Mentor_Id.id]:
             return Response({"error": "Accès non autorisé"}, status=403)
 
         message = MentoringMessage.objects.create(
@@ -93,59 +156,38 @@ class MentoringMessageViewSet(viewsets.ViewSet):
         )
         return Response({"id": message.id, "message": message.message}, status=201)
 
-    # Lister les messages d'un mentorat
     def list(self, request, mentoring_id=None):
         messages = MentoringMessage.objects.filter(mentoring_id=mentoring_id)
         serializer = MentoringMessageSerializer(messages, many=True)
         return Response(serializer.data)
 
 
-
-
+# ----------------------- Progression de mentorat -------------------------
 class MentoringProgressView(APIView):
-    """
-    Suivi des progrès de l'utilisateur dans le cadre du mentorat.
-    """
-    authentication_classes = [MicroserviceTokenAuthentication]  # Appliquer l'authentification
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [MicroserviceTokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        """
-        Récupère la progression du mentorat pour l'utilisateur connecté via le microservice.
-        """
-        # Vérifier que l'utilisateur est bien authentifié via le microservice
-        if not request.user:
-            return Response({"error": "Utilisateur non authentifié"}, status=status.HTTP_401_UNAUTHORIZED)
-
-        # Récupérer les informations de l'utilisateur
         mentee_id = request.user.id
-        mentee_info = {
-            "id": mentee_id,
-            "username": request.user.username,
-            "email": request.user.email,
-            "first_name": request.user.first_name,
-            "last_name": request.user.last_name,
-        }
-
-        # Filtrer les mentorats actifs de l'utilisateur (en tant que mentee)
-        mentorings = Mentoring.objects.filter(Status="active").order_by('-Start_Date')
+        mentorings = Mentoring.objects.filter(mentee_id=mentee_id, Status="active")
 
         if not mentorings.exists():
-            return Response({"message": "Aucune relation de mentorat active trouvée"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"message": "Aucune relation de mentorat active trouvée"}, status=404)
 
         data = []
         for mentoring in mentorings:
-            # Simulation d'une récupération de mentor via le service d'authentification
-            mentor_info = {
-                "id": mentoring.id,  # À remplacer par une récupération via l'API d'authentification
-                "username": f"Mentor_{mentoring.id}",
-                "phone_number": "Non disponible",
-                "is_verified": True  # Valeur fictive à remplacer par la vraie donnée
-            }
-
+            mentor = mentoring.Mentor_Id
             data.append({
-                "mentee_info": mentee_info,
-                "mentor_info": mentor_info,
+                "mentee_info": {
+                    "id": mentee_id,
+                    "username": request.user.username
+                },
+                "mentor_info": {
+                    "id": mentor.id,
+                    "nom": mentor.Nom_mentor,
+                    "prenom": mentor.Prenom_mentor,
+                    "profession": mentor.Profession
+                },
                 "Start_Date": mentoring.Start_Date,
                 "End_Date": mentoring.End_Date,
                 "Status": mentoring.Status,
@@ -153,28 +195,15 @@ class MentoringProgressView(APIView):
                 "Updated_At": mentoring.Updated_At
             })
 
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(data, status=200)
 
 
-
-
-class ListMentoringsView(APIView):
-    """
-    Vue pour lister tous les mentorats existants de l'utilisateur connecté,
-    qu'il soit mentor ou mentee.
-    """
+# ----------------------- Liste des mentors -------------------------
+class MentorListView(APIView):
     authentication_classes = [MicroserviceTokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        user_id = request.user.id
-
-        # Récupérer les mentorats où l'utilisateur est mentee ou mentor
-        mentorings = Mentoring.objects.filter(
-            mentor_id=user_id
-        ) | Mentoring.objects.filter(
-            mentee_id=user_id
-        )
-
-        serializer = MentoringSerializer(mentorings.distinct(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        mentors = Mentor.objects.all()
+        serializer = MentorSerializer(mentors, many=True)
+        return Response(serializer.data)
